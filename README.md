@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ⏳ Legavote EDT 📅
 
-## Getting Started
+Cette application a été réalisée dans le cadre du test technique pour Legavote.
 
-First, run the development server:
+⏱️ Temps passé : ~ 3h
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📋 Enoncé
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Écrire en React (Nextjs si souhaité) un projet qui affiche un schéma de base de données pour la modélisation d’un emploi du temps des élèves / enseignants d’un collège.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Contraintes sur le schéma :
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Au moins un clé étrangère (à mettre en évidence)
+- Au moins une table de jointure (à mettre en évidence)
+- Il n’est pas nécessaire de détailler toutes les colonnes possibles (3 / 4 par tables suffisent)
 
-## Learn More
+Contraintes sur l’affichage :
 
-To learn more about Next.js, take a look at the following resources:
+- Création de composants
+- Utilisation de props
+- Utilisation de librairie tierce autorisée
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 💡 Conception
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- App NextJS classique (utilisation de l'app router & Typescript).
+- 6 react components : TableNode, VerticalLink, HorizontalLink, StandardField, PrimaryKeyField, ForeignKeyField.
+- Utilisation de la librairie reactflow pour l'affichage du schéma.
+- Schéma relationnel (simplifié) :
+  - 5 entités : Eleve, Enseignant, Classe, Matiere, Salle.
+  - 1 table de jointure : Emploi_du_temps.
 
-## Deploy on Vercel
+## 🚀 Fonctionnalités
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Visualisation du schéma relationnel.
+- Mise en évidence de la table de jointure (pointillés).
+- Mise en évidence des clés primaires (soulignées) et étrangères (# + italique).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 🔨 Installation
+
+_Note : Pour réaliser les étapes suivantes, assurez-vous d'avoir Node.js (version 18.17 ou supérieure) et npm (ou Yarn) installés sur votre machine. En cas de problèmes, vous trouverez plus de détails sur la [documentation de Next.js](https://nextjs.org/docs/getting-started/installation)._
+
+1. Cloner le repo sur votre machine locale.
+2. Aller dans le dossier du projet et éxecuter `npm install` ou `yarn install`.
+3. Démarrer le serveur de développement Next.js avec `npm run dev` ou `yarn dev`.
+4. Ouvrir un navigateur et aller à l'addresse [http://localhost:3000/](http://localhost:3000/) (le port peut être différent si cette adresse est déjà utilisée).
+5. Pour arrêter le serveur, faire `Ctrl+C` dans le terminal.
+
+## 📸 Screenshots
+
+![Legavote EDT](docs/legavote_edt.png)

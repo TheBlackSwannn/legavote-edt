@@ -1,112 +1,217 @@
-import Image from "next/image";
+"use client";
+
+import { HorizontalLink, VerticalLink } from "@/components/link";
+import TableNodeType from "@/components/table";
+import { useMemo } from "react";
+import ReactFlow, {
+  Background,
+  BackgroundVariant,
+  Controls,
+  FitViewOptions,
+  Node,
+  Position,
+  useEdgesState,
+  useNodesState,
+} from "reactflow";
+import "reactflow/dist/style.css";
+
+const initialNodes: Node[] = [
+  {
+    id: "eleve",
+    type: "tableNode",
+    position: { x: 100, y: 200 },
+    data: {
+      type: "standard",
+      label: "Eleve",
+      columns: [
+        { name: "id : UUID", type: "primaryKey" },
+        { name: "nom : VARCHAR(255)", type: "standard" },
+        { name: "prenom : VARCHAR(255)", type: "standard" },
+        { name: "date_naissance : DATE", type: "standard" },
+        { name: "classe : UUID", type: "foreignKey" },
+      ],
+      handleTop: true,
+    },
+  },
+  {
+    id: "enseignant",
+    type: "tableNode",
+    position: { x: 800, y: 0 },
+    data: {
+      type: "standard",
+      label: "Enseignant",
+      columns: [
+        { name: "id : UUID", type: "primaryKey" },
+        { name: "nom : VARCHAR(255)", type: "standard" },
+        { name: "prenom : VARCHAR(255)", type: "standard" },
+        { name: "matiere : UUID", type: "foreignKey" },
+      ],
+      handleLeft: true,
+      handleBottom: true,
+    },
+  },
+  {
+    id: "classe",
+    type: "tableNode",
+    position: { x: 100, y: 0 },
+    data: {
+      type: "standard",
+      label: "Classe",
+      columns: [
+        { name: "id : UUID", type: "primaryKey" },
+        { name: "nom : VARCHAR(255)", type: "standard" },
+      ],
+      handleRight: true,
+      handleBottom: true,
+    },
+  },
+  {
+    id: "matiere",
+    type: "tableNode",
+    position: { x: 800, y: 250 },
+    data: {
+      type: "standard",
+      label: "Matiere",
+      columns: [
+        { name: "id : UUID", type: "primaryKey" },
+        { name: "nom : VARCHAR(255)", type: "standard" },
+      ],
+      handleTop: true,
+      handleLeft: true,
+    },
+  },
+  {
+    id: "salle",
+    type: "tableNode",
+    position: { x: 500, y: 350 },
+    data: {
+      type: "standard",
+      label: "Salle",
+      columns: [
+        { name: "id : UUID", type: "primaryKey" },
+        { name: "nom : VARCHAR(255)", type: "standard" },
+        { name: "capacite : INT", type: "standard" },
+      ],
+      handleTop: true,
+    },
+  },
+  {
+    id: "emploi_du_temps",
+    type: "tableNode",
+    position: { x: 500, y: 0 },
+    data: {
+      type: "join",
+      label: "Emploi_du_temps",
+      columns: [
+        { name: "id : UUID", type: "primaryKey" },
+        { name: "enseignant : UUID", type: "foreignKey" },
+        { name: "matiere : UUID", type: "foreignKey" },
+        { name: "classe : UUID", type: "foreignKey" },
+        { name: "salle : UUID", type: "foreignKey" },
+        { name: "jour : DATE", type: "standard" },
+        { name: "heure_debut : TIME", type: "standard" },
+        { name: "heure_fin : TIME", type: "standard" },
+      ],
+      handleLeft: true,
+      handleRight: true,
+      handleBottom: true,
+      customHandles: [
+        { id: "bottom-right", position: Position.Right, style: { top: "90%" } },
+      ],
+    },
+  },
+];
+
+const initialEdges = [
+  {
+    id: "e-classe-eleve",
+    source: "classe",
+    target: "eleve",
+    sourceHandle: "bottom",
+    targetHandle: "top",
+    type: "verticalLink",
+    data: { sourceLabel: "11", targetLabel: "1*" },
+  },
+  {
+    id: "e-classe-emploi_du_temps",
+    source: "classe",
+    target: "emploi_du_temps",
+    sourceHandle: "right",
+    targetHandle: "left",
+    type: "horizontalLink",
+    data: { sourceLabel: "11", targetLabel: "0*" },
+  },
+  {
+    id: "e-emploi_du_temps-salle",
+    source: "emploi_du_temps",
+    target: "salle",
+    sourceHandle: "bottom",
+    targetHandle: "top",
+    type: "verticalLink",
+    data: { sourceLabel: "0*", targetLabel: "11" },
+  },
+  {
+    id: "e-emploi_du_temps-enseignant",
+    source: "emploi_du_temps",
+    target: "enseignant",
+    sourceHandle: "right",
+    targetHandle: "left",
+    type: "horizontalLink",
+    data: { sourceLabel: "0*", targetLabel: "11" },
+  },
+  {
+    id: "e-emploi_du_temps-matiere",
+    source: "emploi_du_temps",
+    target: "matiere",
+    sourceHandle: "bottom-right",
+    targetHandle: "left",
+    type: "horizontalLink",
+    data: { sourceLabel: "0*", targetLabel: "11" },
+  },
+  {
+    id: "e-enseignant-matiere",
+    source: "enseignant",
+    target: "matiere",
+    sourceHandle: "bottom",
+    targetHandle: "top",
+    type: "verticalLink",
+    data: { sourceLabel: "0*", targetLabel: "0*" },
+  },
+];
+
+const fitViewOptions: FitViewOptions = {
+  padding: 0.2,
+};
 
 export default function Home() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const nodeTypes = useMemo(() => ({ tableNode: TableNodeType }), []);
+  const edgeTypes = useMemo(
+    () => ({ verticalLink: VerticalLink, horizontalLink: HorizontalLink }),
+    []
+  );
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
+    <main style={{ width: "100vw", height: "100vh" }}>
+      <div className="w-full h-1/6 flex flex-col justify-center items-center bg-gray-800 text-white gap-2">
+        <h1 className="text-4xl text-center">Legavote - Modélisation EDT</h1>
+        <p className="text-lg text-center">Schéma relationnel</p>
       </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div className="w-full h-5/6">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          fitView
+          fitViewOptions={fitViewOptions}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
         >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+          <Controls />
+          <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+        </ReactFlow>
       </div>
     </main>
   );
